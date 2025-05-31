@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Search, User, Settings, LogOut, UserPlus } from "lucide-react"
@@ -25,15 +26,15 @@ export function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-[#4b0082] px-4 text-white md:px-6">
-      <div className="flex items-center gap-4">
+    <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-[#4b0082] px-3 sm:px-4 text-white md:px-6">
+      <div className="flex items-center gap-2 sm:gap-4">
         <MobileSidebar />
-        <Link to="/" className="flex items-center gap-2 text-2xl font-bold italic">
-          EmpMng
+        <Link to="/" className="flex items-center gap-1 sm:gap-2 text-xl sm:text-2xl font-bold italic">
+          Work Track
         </Link>
       </div>
 
-      <div className="relative mx-4 hidden flex-1 max-w-md md:flex">
+      <div className="relative mx-2 sm:mx-4 hidden flex-1 max-w-md md:flex">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-white/70" />
         <Input
           type="search"
@@ -43,7 +44,7 @@ export function Navbar() {
         />
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <Button variant="ghost" size="icon" className="text-white" onClick={handleAuthAction}>
           <svg
             xmlns="http://www.w3.org/2000/svg"

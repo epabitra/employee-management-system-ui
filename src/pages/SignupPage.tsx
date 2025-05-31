@@ -1,7 +1,6 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect } from "react"
+import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -16,6 +15,8 @@ import { Button } from "../components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { Calendar } from "../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
+import { GET_ALL_ROLES } from "../constants/Constant"
+import { GET_ALL_DEPARTMENTS } from "../constants/Constant"
 
 const signupSchema = z
   .object({
@@ -26,13 +27,13 @@ const signupSchema = z
     confirm_password: z.string(),
     image_url: z.any().optional(),
     lang_key: z.string().default("en").optional(),
-    timezone_id: z.string(),
     phone: z.string().min(5, { message: "Please enter a valid phone number" }),
     dob: z.date({
       required_error: "Please select a date of birth",
     }),
     department: z.string(),
     role: z.string(),
+    country: z.string().min(1, { message: "Country is required" }),
   })
   .refine((data) => data.password_hash === data.confirm_password, {
     message: "Passwords don't match",
@@ -41,13 +42,28 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>
 
+type Role = {
+  id: number
+  uuid: string
+  name: string
+}
+
+type Dept = {
+  id: number
+  uuid: string
+  name: string
+}
+
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [timeZones, setTimeZones] = useState<string[]>([])
+  const [error, setError] = useState("") 
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const navigate = useNavigate()
   const { signup } = useAuth()
+  const [roles, setRoles] = useState<Role[]>([])
+  const [departments, setDepartments] = useState<Dept[]>([])
+
+
 
   const form = useForm<SignupFormValues, any>({
     resolver: zodResolver(signupSchema),
@@ -58,27 +74,15 @@ export default function SignupPage() {
       password_hash: "",
       confirm_password: "",
       lang_key: "en",
-      timezone_id: "",
       phone: "",
       department: "",
       role: "",
     },
   })
 
-  useEffect(() => {
-    try {
-      const tzList = Intl.DateTimeFormat().resolvedOptions().timeZone
-        ? ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo", "Asia/Kolkata"]
-        : ["UTC"];
-      setTimeZones(tzList)
-      const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone
-      form.setValue("timezone_id", userTz)
-    } catch (error) {
-      console.error("Error fetching timezones:", error)
-      setTimeZones(["UTC", "America/New_York", "Europe/London", "Asia/Tokyo", "Asia/Kolkata"])
-    }
-  }, [form])
 
+
+  // profile image handler
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -101,15 +105,14 @@ export default function SignupPage() {
         password_hash: data.password_hash,
         image_url: imagePreview,
         lang_key: data.lang_key,
-        timezone_id: data.timezone_id,
         phone: data.phone,
         dob: format(data.dob, "yyyy-MM-dd"),
         role: data.role,
         department: data.department,
       }
-      
+
       const success = await signup(userDetails)
-      if (success) {navigate("/"); console.log(userDetails);} 
+      if (success) { navigate("/"); console.log(userDetails); }
       else setError("Failed to create account. Email might already be in use.")
     } catch (err) {
       setError("An error occurred during signup")
@@ -119,10 +122,34 @@ export default function SignupPage() {
     }
   }
 
+  //fetch all roles
+  async function getAllRoles() {
+    const response = await axios.get<Role[]>(GET_ALL_ROLES);
+    if (response.status === 200) {
+      console.log("response.data :: " + JSON.stringify(response.data));
+      setRoles(response.data);
+    }
+  }
+
+
+  //fetch all departments
+  async function getAllDepartments() {
+    const response = await axios.get<Dept[]>(GET_ALL_DEPARTMENTS);
+    if (response.status === 200) {
+      console.log("response.data :: " + JSON.stringify(response.data));
+      setDepartments(response.data);
+    }
+  }
+
+  useEffect(() => {
+    getAllRoles();
+    getAllDepartments();
+  }, []);
+
   return (
     <div className="flex min-h-screen">
       <div className="hidden md:flex md:w-1/2 bg-[#4b0082] items-top justify-center">
-        <h1 className="text-7xl font-bold italic text-white mt-[250px]">EmpMng</h1>
+        <h1 className="text-7xl font-bold italic text-white mt-[250px]">Work Track</h1>
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
@@ -155,6 +182,7 @@ export default function SignupPage() {
                 )} />
               </div>
 
+              {/* Email  */}
               <FormField name="email" control={form.control} render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
@@ -163,6 +191,7 @@ export default function SignupPage() {
                 </FormItem>
               )} />
 
+              {/* password  */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField name="password_hash" control={form.control} render={({ field }) => (
                   <FormItem>
@@ -180,6 +209,7 @@ export default function SignupPage() {
                 )} />
               </div>
 
+              {/* Phone number  */}
               <FormField name="phone" control={form.control} render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone</FormLabel>
@@ -188,6 +218,8 @@ export default function SignupPage() {
                 </FormItem>
               )} />
 
+
+              {/* Date of birth */}
               <FormField name="dob" control={form.control} render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
@@ -208,60 +240,45 @@ export default function SignupPage() {
                 </FormItem>
               )} />
 
+              {/* Department selection */}
               <FormField name="department" control={form.control} render={({ field }) => (
                 <FormItem>
                   <FormLabel>Department</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger></FormControl>
                     <SelectContent>
-                      <SelectItem value="HR">HR</SelectItem>
-                      <SelectItem value="Engineering">Engineering</SelectItem>
-                      <SelectItem value="Sales">Sales</SelectItem>
+                      {
+                        Array.isArray(departments) && departments.map((dept) => (
+                          <SelectItem key={dept.uuid} value={dept.uuid}>{dept.name}</SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )} />
 
+
+              {/* Role selection  */}
               <FormField name="role" control={form.control} render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl><SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger></FormControl>
                     <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="User">User</SelectItem>
+                      {
+                        Array.isArray(roles) && roles.map((role) => (
+                          <SelectItem key={role.uuid} value={role.uuid}>{role.name}</SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )} />
 
-              <FormField
-                control={form.control}
-                name="timezone_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Timezone</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your timezone" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-80">
-                        {timeZones.map((tz) => (
-                          <SelectItem key={tz} value={tz}>
-                            {tz}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
+              {/* profile picture  */}
               <div>
                 <FormLabel>Profile Picture</FormLabel>
                 <Input type="file" accept="image/*" onChange={handleImageChange} />

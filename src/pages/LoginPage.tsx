@@ -56,7 +56,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       {/* Left side - Logo */}
       <div className="hidden md:flex md:w-1/2 bg-[#4b0082] items-center justify-center">
-        <h1 className="text-7xl font-bold italic text-white">EmpMng</h1>
+        <h1 className="text-7xl font-bold italic text-white">Work Track</h1>
       </div>
 
       {/* Right side - Login form */}

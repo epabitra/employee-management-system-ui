@@ -1,3 +1,4 @@
+
 import type React from "react"
 
 import { useState } from "react"
@@ -83,8 +84,8 @@ export function MobileSidebar() {
             <span className="sr-only">Toggle menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <div className="flex flex-col gap-4 p-4">
+        <SheetContent side="left" className="w-[85%] max-w-[300px] p-0">
+          <div className="flex flex-col gap-4 p-4 overflow-y-auto h-full">
             {/* Current Page Card */}
             <Card className="p-4">
               <div className="flex items-center gap-2">
@@ -96,7 +97,7 @@ export function MobileSidebar() {
 
             {/* Admin Profile Card */}
             <Card className="p-4 text-center">
-              <Avatar className="mx-auto h-20 w-20">
+              <Avatar className="mx-auto h-16 w-16 sm:h-20 sm:w-20">
                 {isAuthenticated && user?.image_url ? (
                   <AvatarImage
                     src={user.image_url || "/placeholder.svg"}
@@ -109,10 +110,10 @@ export function MobileSidebar() {
                   {isAuthenticated && user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : "U"}
                 </AvatarFallback>
               </Avatar>
-              <h3 className="mt-2 text-lg font-medium">
+              <h3 className="mt-2 text-base sm:text-lg font-medium">
                 {isAuthenticated && user ? `Welcome ${user.first_name}` : "Welcome Guest"}
               </h3>
-              <p className="text-sm text-gray-500">{formattedDate}</p>
+              <p className="text-xs sm:text-sm text-gray-500">{formattedDate}</p>
             </Card>
 
             {/* Navigation Menu */}

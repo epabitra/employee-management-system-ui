@@ -1,3 +1,4 @@
+
 import type React from "react"
 
 import { useNavigate, useLocation } from "react-router-dom"
@@ -71,8 +72,8 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="absolute top-16 left-0 h-[calc(100vh-4rem)] w-64 border-r bg-background md:block hidden">
-      <div className="flex flex-col gap-4 p-4">
+    <aside className="absolute top-16 left-0 h-[calc(100vh-2rem)] w-64 border-r bg-background md:block hidden z-10">
+      <div className="flex flex-col gap-4 p-4 overflow-y-auto h-full">
         {/* Current Page Card */}
         <Card className="p-4">
           <div className="flex items-center gap-2">
