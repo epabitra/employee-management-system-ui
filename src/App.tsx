@@ -1,6 +1,5 @@
 import type React from "react"
-
-import { Routes, Route, Navigate } from "react-router-dom"
+import { Routes, Route, Navigate, } from "react-router-dom"
 import { DashboardPage } from "./components/dashboard-page"
 import EmployeesPage from "./pages/EmployeesPage"
 import CompanyPage from "./pages/CompanyPage"
@@ -11,27 +10,21 @@ import ProfilePage from "./pages/ProfilePage"
 import SettingsPage from "./pages/SettingsPage"
 import LoginPage from "./pages/LoginPage"
 import SignupPage from "./pages/SignupPage"
-import { AuthProvider, useAuth } from "./context/AuthContext"
+import { UserProvider, } from "./context/useAuth"
+import { ToastContainer } from "react-toastify"
+import { ProtectedRoute } from "./models/ProtectedRoute"
 
-// Replace the ProtectedRoute component with a ViewOnlyRoute component
-// This allows viewing the dashboard but requires login for functionality
+
 
 const ViewOnlyRoute = ({ children }: { children: React.ReactNode }) => {
-  // We'll allow viewing, but components will check auth status for functionality
+  // We will allow viewing, but components will check auth status
   return <>{children}</>
 }
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth()
 
-  if (!user) {
-    return <Navigate to="/login" />
-  }
-
-  return <>{children}</>
-}
 
 function AppRoutes() {
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -49,18 +42,18 @@ function AppRoutes() {
       <Route
         path="/employees"
         element={
-          <ViewOnlyRoute>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <EmployeesPage />
-          </ViewOnlyRoute>
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/company"
         element={
-          <ViewOnlyRoute>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <CompanyPage />
-          </ViewOnlyRoute>
+          </ProtectedRoute>
         }
       />
 
@@ -76,9 +69,9 @@ function AppRoutes() {
       <Route
         path="/leave"
         element={
-          <ViewOnlyRoute>
+          <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
             <LeavePage />
-          </ViewOnlyRoute>
+          </ProtectedRoute>
         }
       />
 
@@ -94,7 +87,7 @@ function AppRoutes() {
       <Route
         path="/profile"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE", "ADMIN"]}>
             <ProfilePage />
           </ProtectedRoute>
         }
@@ -103,9 +96,9 @@ function AppRoutes() {
       <Route
         path="/settings"
         element={
-          <ProtectedRoute>
+          <ViewOnlyRoute>
             <SettingsPage />
-          </ProtectedRoute>
+          </ViewOnlyRoute>
         }
       />
 
@@ -115,10 +108,12 @@ function AppRoutes() {
 }
 
 function App() {
+
   return (
-    <AuthProvider>
+    <UserProvider>
       <AppRoutes />
-    </AuthProvider>
+      <ToastContainer />
+    </UserProvider>
   )
 }
 

@@ -1,108 +1,154 @@
-import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+// import type React from "react"
+// import { createContext, useContext, useState, useEffect } from "react"
+// import axios from "axios"
+// import { CREATE_ACCOUNT, ACCOUNT_LOGIN } from "../constants/ApiConstant"
+// import { handleError } from "@/helpers/ErrorHandler"
 
-interface User {
-  first_name: string
-  last_name: string
-  email: string
-  image_url?: string
-  lang_key?: string
-  timezone_id?: string
-  phone?: string
-  dob?: string
-  role?: string
-  department?: string
-}
+// interface User {
+//   id?: number
+//   firstName: string
+//   lastName: string
+//   email: string
+//   imageUrl?: string
+//   langKey?: string
+//   mobileNumber?: string
+//   dateOfBirth?: string
+//   role?: string
+//   department?: string
+//   token: string | null
+// }
 
-interface AuthContextType {
-  user: User | null
-  isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
-  signup: (userDetails: any) => Promise<boolean>
-}
+// interface AuthContextType {
+//   user: User | null
+//   isAuthenticated: boolean
+//   login: (email: string, password: string) => Promise<boolean>
+//   logout: () => void
+//   signup: (userDetails: any) => Promise<boolean>
+//   loading: boolean
+// }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+// const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-  useEffect(() => {
-    // Check if user is stored in localStorage
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-      setIsAuthenticated(true)
-    }
-  }, [])
+// export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+//   const [user, setUser] = useState<User | null>(null)
+//   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+//   const [loading, setLoading] = useState<boolean>(true)
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // In a real app, this would be an API call
-    const storedUsers = localStorage.getItem("users")
-    if (storedUsers) {
-      const users = JSON.parse(storedUsers)
-      const foundUser = users.find((u: any) => u.email === email && u.password_hash === password)
+//   useEffect(() => {
+//     // Check if user session exists when app loads 
+//     checkAuthStatus()
+//   }, [])
 
-      if (foundUser) {
-        setUser(foundUser)
-        setIsAuthenticated(true)
-        localStorage.setItem("user", JSON.stringify(foundUser))
-        return true
-      }
-    }
-    return false
-  }
+//   const checkAuthStatus = async () => {
+//     try {
+//       setLoading(false)
+//     } catch (error) {
+//       console.error("Auth check failed:", error)
+//       setLoading(false)
+//     }
+//   }
 
-  const logout = () => {
-    setUser(null)
-    setIsAuthenticated(false)
-    localStorage.removeItem("user")
-  }
 
-  const signup = async (userDetails: any): Promise<boolean> => {
-    // In a real app, this would be an API call
-    try {
-      // Store user in localStorage for demo purposes
-      const storedUsers = localStorage.getItem("users")
-      const users = storedUsers ? JSON.parse(storedUsers) : []
+//   //Login functionality
+//   const login = async (email: string, password: string): Promise<boolean> => {
+//     try {
+//       const response = await axios.post<User>(
+//         ACCOUNT_LOGIN,
+//         {email: email, password: password,},
+//         {headers: { "Content-Type": "application/json" },},
+//       )
 
-      // Check if email already exists
-      if (users.some((u: any) => u.email === userDetails.email)) {
-        return false
-      }
+//       if (response.status === 200) {
+//         const userData = response.data
 
-      // Ensure the image_url is properly stored
-      const userToStore = {
-        ...userDetails,
-        // Make sure image_url is stored as a string
-        image_url: userDetails.image_url || null,
-      }
+//         // Create user object
+//         const user: User = {
+//           id: userData.id,
+//           firstName: userData.firstName || "Admin",
+//           lastName: userData.lastName || "User",
+//           email: userData.email,
+//           imageUrl: userData.imageUrl,
+//           langKey: userData.langKey,
+//           mobileNumber: userData.mobileNumber,
+//           dateOfBirth: userData.dateOfBirth,
+//           role: userData.role || "Admin",
+//           department: userData.department,
+//           token: userData.token
+//         }
 
-      users.push(userToStore)
-      localStorage.setItem("users", JSON.stringify(users))
+//         console.log("user object:", user)
 
-      // Auto login after signup
-      setUser(userToStore)
-      setIsAuthenticated(true)
-      localStorage.setItem("user", JSON.stringify(userToStore))
+//         setUser(user)
+//         setIsAuthenticated(true)
+//         return true
+//       }
+//       return false
+//     } catch (error: any) {
+//       handleError(error)
+//       console.error("Login failed:", error)
+//       setUser(null)
+//       setIsAuthenticated(false)
+//       return false
+//     }
+//   }
 
-      return true
-    } catch (error) {
-      console.error("Signup error:", error)
-      return false
-    }
-  }
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, signup }}>{children}</AuthContext.Provider>
-  )
-}
+//   //Logout functionality
+//   const logout = () => {
+//     setUser(null)
+//     setIsAuthenticated(false)
+//   }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
-}
+
+//   //Signup functionality
+//   const signup = async (userDetails: any): Promise<boolean> => {
+//     try {
+//       const response = await axios.post<User>(CREATE_ACCOUNT, userDetails, {
+//         headers: { "Content-Type": "application/json" },
+//       })
+
+//       if (response.status === 201 || response.status === 200) {
+//         const userData = response.data
+
+//         // Create user object
+//         const user: User = {
+//           id: userData.id,
+//           firstName: userData.firstName,
+//           lastName: userData.lastName,
+//           email: userData.email,
+//           imageUrl: userData.imageUrl,
+//           langKey: userData.langKey,
+//           mobileNumber: userData.mobileNumber,
+//           dateOfBirth: userData.dateOfBirth,
+//           role: userData.role,
+//           department: userData.department,
+//           token: userData.token
+//         }
+//         console.log("Processed user object:", user)
+
+//         setUser(user)
+//         setIsAuthenticated(true)
+//         return true
+//       }
+//       return false
+//     } catch (error: any) {
+//       console.error("Signup failed:", error)
+//       return false
+//     }
+//   }
+
+//   return (
+//     <AuthContext.Provider value={{ user, isAuthenticated, login, logout, signup, loading }}>
+//       {children}
+//     </AuthContext.Provider>
+//   )
+// }
+
+// export const useAuth = () => {
+//   const context = useContext(AuthContext)
+//   if (context === undefined) {
+//     throw new Error("useAuth must be used within an AuthProvider")
+//   }
+//   return context
+// }

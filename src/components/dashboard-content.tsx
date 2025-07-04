@@ -7,7 +7,7 @@ import { TodayEvents } from "./today-events"
 import { TeamLeads } from "./team-leads"
 
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../context/useAuth"
 
 interface DashboardContentProps {
   dashboardType: "admin" | "employee";
@@ -15,11 +15,11 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ dashboardType, setDashboardType }: DashboardContentProps) {
-  const { isAuthenticated } = useAuth()
+  const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
 
   const handleTabChange = (value: string) => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
       return
     }

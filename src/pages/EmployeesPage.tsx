@@ -10,7 +10,7 @@ import { EmployeeTable } from "../components/employee-table"
 import { AddEmployeeDialog } from "../components/add-employee-dialog"
 import { TeamsList } from "../components/teams-list"
 import { AddTeamDialog } from "../components/add-team-dialog"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../context/useAuth"
 import { useNavigate } from "react-router-dom"
 import { fetchTeams } from "../services/team-service"
 
@@ -26,7 +26,7 @@ export default function EmployeesPage() {
   const [teams, setTeams] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const { isAuthenticated } = useAuth()
+  const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
 
   // Fetch teams on component mount
@@ -58,7 +58,7 @@ export default function EmployeesPage() {
   }, [])
 
   const handleTabChange = (value: string) => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
       return
     }
@@ -66,7 +66,7 @@ export default function EmployeesPage() {
   }
 
   const handleAddPerson = () => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
       return
     }
@@ -74,7 +74,7 @@ export default function EmployeesPage() {
   }
 
   const handleAddTeam = () => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
       return
     }
@@ -140,7 +140,7 @@ export default function EmployeesPage() {
   }
 
   const handleViewModeChange = (mode: "grid" | "list") => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
       return
     }
@@ -148,7 +148,7 @@ export default function EmployeesPage() {
   }
 
   const handleStatusChange = (id: string, status: string) => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
       return
     }

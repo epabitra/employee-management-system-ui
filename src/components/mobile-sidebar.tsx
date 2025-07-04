@@ -9,7 +9,7 @@ import { Card } from "./ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Home, Users, Building2, Calendar, FileText, Star, Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../context/useAuth"
 
 interface NavItemProps {
   href: string
@@ -20,11 +20,11 @@ interface NavItemProps {
 }
 
 function NavItem({ href, icon: Icon, label, isActive, onClick }: NavItemProps) {
-  const { isAuthenticated } = useAuth()
+  const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
 
   const handleClick = (e: React.MouseEvent) => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       e.preventDefault()
       navigate("/login")
       if (onClick) onClick()
@@ -60,7 +60,7 @@ export function MobileSidebar() {
     year: "numeric",
   }).format(currentDate)
 
-  const { user, isAuthenticated } = useAuth()
+  const { user, isLoggedIn } = useAuth()
 
   // Determine current page name based on pathname
   const getCurrentPageName = () => {
@@ -98,20 +98,24 @@ export function MobileSidebar() {
             {/* Admin Profile Card */}
             <Card className="p-4 text-center">
               <Avatar className="mx-auto h-16 w-16 sm:h-20 sm:w-20">
-                {isAuthenticated && user?.image_url ? (
+                {isLoggedIn() && user?.imageUrl ? (
                   <AvatarImage
-                    src={user.image_url || "/placeholder.svg"}
-                    alt={`${user.first_name} ${user.last_name}`}
+                    src={user.imageUrl || "/placeholder.svg"}
+                    alt={`${user.firstName} ${user.lastName}`}
                   />
                 ) : (
                   <AvatarImage src="/placeholder.svg?height=80&width=80" alt="User" />
                 )}
                 <AvatarFallback>
-                  {isAuthenticated && user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : "U"}
+                  {isLoggedIn() && user?.firstName && user?.lastName
+                    ? `${user.firstName[0]}${user.lastName[0]}`
+                    : "U"}
                 </AvatarFallback>
               </Avatar>
               <h3 className="mt-2 text-base sm:text-lg font-medium">
-                {isAuthenticated && user ? `Welcome ${user.first_name}` : "Welcome Guest"}
+                {isLoggedIn() && user?.firstName
+                  ? `Welcome ${user.firstName} ${user.lastName}`
+                  : "Welcome Guest"}
               </h3>
               <p className="text-xs sm:text-sm text-gray-500">{formattedDate}</p>
             </Card>

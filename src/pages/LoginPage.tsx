@@ -1,16 +1,14 @@
-"use client"
-
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Facebook, Mail } from "lucide-react"
-import { useAuth } from "../context/AuthContext"
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../components/ui/form"
 import { Input } from "../components/ui/input"
 import { Button } from "../components/ui/button"
+import { useAuth } from "@/context/useAuth"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -22,8 +20,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const navigate = useNavigate()
-  const { login } = useAuth()
+  const { loginUser } = useAuth()
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -37,34 +34,22 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
 
-    try {
-      const success = await login(data.email, data.password)
-      if (success) {
-        navigate("/")
-      } else {
-        setError("Invalid email or password")
-      }
-    } catch (err) {
-      setError("An error occurred during login")
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
+    loginUser(data.email, data.password)
   }
 
   return (
     <div className="flex min-h-screen">
       {/* Left side - Logo */}
-      <div className="hidden md:flex md:w-1/2 bg-[#4b0082] items-center justify-center">
+      <div className="fixed w-1/2 h-screen hidden md:flex md:w-1/2 bg-[#4b0082] items-center justify-center">
         <h1 className="text-7xl font-bold italic text-white">Work Track</h1>
       </div>
 
       {/* Right side - Login form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full md:ml-[50%] md:w-1/2 overflow-y-auto flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-6">
           {/* Mobile logo */}
           <div className="md:hidden text-center mb-8">
-            <h1 className="text-4xl font-bold italic text-[#4b0082]">EmpMng</h1>
+            <h1 className="text-4xl font-bold italic text-[#4b0082]">Work Track</h1>
           </div>
 
           <div className="text-center space-y-2">
@@ -111,8 +96,8 @@ export default function LoginPage() {
           </Form>
 
           <div className="text-center">
-            <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-[#4b0082]">
-              Forgot Password?
+            <Link to="/login" className="text-sm text-gray-500 hover:text-[#4b0082]">
+              Forgot password?
             </Link>
           </div>
 

@@ -7,20 +7,20 @@ import { Button } from "./ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { MobileSidebar } from "./mobile-sidebar"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../context/useAuth"
 
 export function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isLoggedIn, logout } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
-    navigate("/")
+    navigate("/login")
   }
 
   const handleAuthAction = () => {
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       navigate("/login")
     }
   }
@@ -68,22 +68,24 @@ export function Navbar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
-                {isAuthenticated && user?.image_url ? (
+                {isLoggedIn() && user?.imageUrl ? (
                   <AvatarImage
-                    src={user.image_url || "/placeholder.svg"}
-                    alt={`${user.first_name} ${user.last_name}`}
+                    src={user.imageUrl || "/placeholder.svg"}
+                    alt={`${user.firstName} ${user.lastName}`}
                   />
                 ) : (
                   <AvatarImage src="/placeholder.svg" alt="User" />
                 )}
                 <AvatarFallback>
-                  {isAuthenticated && user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : "U"}
+                  {isLoggedIn() && user && user.firstName && user.lastName
+                    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
+                    : "U"}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            {isAuthenticated ? (
+            {isLoggedIn() ? (
               <>
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="flex items-center gap-2">
