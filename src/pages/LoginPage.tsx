@@ -34,7 +34,13 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
 
-    loginUser(data.email, data.password)
+    try {
+      loginUser(data.email, data.password);
+    } catch (error) {
+      setError("Invalid credentials");
+    } finally {
+      setIsLoading(false); 
+    }
   }
 
   return (

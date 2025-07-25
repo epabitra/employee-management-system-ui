@@ -365,7 +365,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee, available
                               <SelectValue placeholder="Select team" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          {/* <SelectContent>
                             {availableTeams.length > 0 ? (
                               availableTeams.map((team) => (
                                 <SelectItem key={team.id} value={team.name}>
@@ -375,7 +375,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee, available
                             ) : (
                               <SelectItem value="default">No teams available</SelectItem>
                             )}
-                          </SelectContent>
+                          </SelectContent> */}
                         </Select>
                         <FormMessage />
                       </FormItem>
@@ -553,7 +553,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee, available
                 Cancel
               </Button>
               <Button type="submit" className="bg-purple-900 hover:bg-purple-800 w-full sm:w-auto">
-                Add Team Member
+                Add Employee
               </Button>
             </DialogFooter>
           </form>

@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import { jwtDecode } from "jwt-decode"
 import { SignupFormValues } from "@/models/SignupForm"
-import { CURRENT_USER_DETAILS } from "@/constants/ApiConstant"
+import { CURRENT_USER_DETAILS } from "@/constants/constants"
+import { handleError } from "@/helpers/ErrorHandler"
 
 
 type userContextType = {
@@ -30,12 +31,12 @@ export const UserProvider = ({ children }: Props) => {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const user = localStorage.getItem("user")
+        const userDetails = localStorage.getItem("userDetails")
         const token = localStorage.getItem("token")
 
-        if (user && token) {
+        if (userDetails && token) {
             try {
-                setUser(JSON.parse(user))
+                setUser(JSON.parse(userDetails))
                 setToken(token)
                 axios.defaults.headers.common["Authorization"] = "Bearer " + token
             } catch (error) {
@@ -58,14 +59,18 @@ export const UserProvider = ({ children }: Props) => {
 
     const fetchCurrentUserDetails = async (): Promise<userProfile | null> => {
         try {
-            const res = await axios.get(CURRENT_USER_DETAILS); 
-            console.log(res.data);
+            const token = localStorage.getItem("token");
+            if (!token) return null;
+
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            const res = await axios.get(CURRENT_USER_DETAILS);
             return res.data;
         } catch (error) {
             console.error("Failed to fetch current user details:", error);
             return null;
         }
     };
+
 
 
 
@@ -81,8 +86,8 @@ export const UserProvider = ({ children }: Props) => {
 
                 const token = res?.data.token!
                 localStorage.setItem("token", token)
-
                 setToken(token);
+                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
                 const fullUser = await fetchCurrentUserDetails();
                 if (fullUser && token) {
@@ -90,7 +95,6 @@ export const UserProvider = ({ children }: Props) => {
                     localStorage.setItem("userDetails", JSON.stringify(fullUser));
                 }
 
-                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
                 toast.success("Signup Successfull");
                 navigate("/");
                 return true;
@@ -110,29 +114,30 @@ export const UserProvider = ({ children }: Props) => {
 
     const loginUser = async (email: string, password: string) => {
         try {
-            await loginAPI(email, password).then(async (res) => {
-                if (res) {
-                    const decodedUser = decodeTokenToUser(res.data.token)
-                    localStorage.setItem("user", JSON.stringify(decodedUser))
+            const res = await loginAPI(email, password);
+            if (!res || !res.data?.token) throw new Error("Invalid login response");
 
-                    const token = res?.data.token!
-                    localStorage.setItem("token", token)
+            const decodedUser = decodeTokenToUser(res.data.token);
+            localStorage.setItem("user", JSON.stringify(decodedUser));
 
-                    const fullUser = await fetchCurrentUserDetails();
-                    if (fullUser && token) {
-                        setUser(fullUser);
-                        localStorage.setItem("userDetails", JSON.stringify(fullUser));
-                    }
+            const token = res.data.token;
+            localStorage.setItem("token", token);
+            setToken(token);
 
-                    setToken(res?.data.token!)
-                    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-                    toast.success("Login Successfull!")
-                    navigate("/")
-                }
-            })
-                .catch(() => toast.warning("Server error occured!"))
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            const fullUser = await fetchCurrentUserDetails();
+            if (fullUser) {
+                setUser(fullUser);
+                localStorage.setItem("userDetails", JSON.stringify(fullUser));
+            }
+
+            toast.success("Login Successful!");
+            navigate("/");
         } catch (error) {
-            console.error("Signup failed:", error)
+            console.error("Login failed:", error)
+            handleError(error);
+            throw error;
         }
     }
 
@@ -142,7 +147,9 @@ export const UserProvider = ({ children }: Props) => {
 
     const logout = () => {
         localStorage.removeItem("token")
-        localStorage.removeItem("user")
+        localStorage.removeItem("user");
+        localStorage.removeItem("userDetails")
+        delete axios.defaults.headers.common["Authorization"];
         setUser(null)
         setToken(null)
         toast.success("Logout Successfull");

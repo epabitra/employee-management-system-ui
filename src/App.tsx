@@ -69,7 +69,7 @@ function AppRoutes() {
       <Route
         path="/leave"
         element={
-          <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE"]}>
+          <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
             <LeavePage />
           </ProtectedRoute>
         }
@@ -87,7 +87,7 @@ function AppRoutes() {
       <Route
         path="/profile"
         element={
-          <ProtectedRoute allowedRoles={["ROLE_EMPLOYEE", "ADMIN"]}>
+          <ProtectedRoute allowedRoles={["EMPLOYEE", "ADMIN"]}>
             <ProfilePage />
           </ProtectedRoute>
         }

@@ -1,5 +1,3 @@
-"use client"
-
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
@@ -27,13 +25,19 @@ export function EmployeeTable({ employees, viewMode, onStatusChange }: EmployeeT
             <Avatar className="h-16 w-16 mb-2">
               <AvatarImage src={employee.avatar || "/placeholder.svg"} alt={employee.firstName} />
               <AvatarFallback>
-                {employee.firstName.charAt(0)}
-                {employee.lastName.charAt(0)}
+                {employee.firstName.charAt(0).toUpperCase()}
+                {employee.lastName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <h3 className="font-medium text-center">
+            <h3 className="font-medium text-purple-900 text-center">
               {employee.firstName} {employee.lastName}
             </h3>
+            <p className="font-normal text-center">
+              {employee.team}
+            </p>
+            <p className="font-extralight text-xs text-center">
+              {employee.email}
+            </p>
             <p className="text-sm text-gray-500">{employee.team}</p>
             <div className="mt-2 w-full">
               <Select value={employee.status} onValueChange={(value) => onStatusChange(employee.id, value)}>
@@ -74,11 +78,11 @@ export function EmployeeTable({ employees, viewMode, onStatusChange }: EmployeeT
                   <Avatar>
                     <AvatarImage src={employee.avatar || "/placeholder.svg"} alt={employee.firstName} />
                     <AvatarFallback>
-                      {employee.firstName.charAt(0)}
-                      {employee.lastName.charAt(0)}
+                      {employee.firstName.charAt(0).toUpperCase()}
+                      {employee.lastName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">
+                  <span className="font-medium text-purple-900">
                     {employee.firstName} {employee.lastName}
                   </span>
                 </div>

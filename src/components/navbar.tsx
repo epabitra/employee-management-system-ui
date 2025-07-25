@@ -76,9 +76,9 @@ export function Navbar() {
                 ) : (
                   <AvatarImage src="/placeholder.svg" alt="User" />
                 )}
-                <AvatarFallback>
+                <AvatarFallback className="text-[#4b0082]">
                   {isLoggedIn() && user && user.firstName && user.lastName
-                    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
+                    ? `${user.firstName.charAt(0).toUpperCase()}${user.lastName.charAt(0).toUpperCase()}`
                     : "U"}
                 </AvatarFallback>
               </Avatar>

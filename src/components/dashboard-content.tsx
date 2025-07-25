@@ -1,92 +1,117 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Users, Building2, FileText, DollarSign } from 'lucide-react'
+import { Users, Handshake, Landmark, IndianRupee } from 'lucide-react'
 import { EmployeeChart } from "./employee-chart"
 import { SalaryChart } from "./salary-chart"
 import { TodayEvents } from "./today-events"
 import { TeamLeads } from "./team-leads"
-
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/useAuth"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { TOTAL_COUNT } from "@/constants/constants"
 
-interface DashboardContentProps {
-  dashboardType: "admin" | "employee";
-  setDashboardType: (type: "admin" | "employee") => void;
-}
+export function DashboardContent() {
+  const { user } = useAuth()
+  const roleArray = user?.roles
+  const role = Array.isArray(roleArray) ? roleArray[0]?.toUpperCase()?.trim() : null
 
-export function DashboardContent({ dashboardType, setDashboardType }: DashboardContentProps) {
-  const { isLoggedIn } = useAuth()
-  const navigate = useNavigate()
+  console.log("User Role:", role)
 
-  const handleTabChange = (value: string) => {
-    if (!isLoggedIn) {
-      navigate("/login")
-      return
-    }
+  const [metrics, setMetrics] = useState<{ employeeCount?: number, totalDepartments?: number, totalTeams?: number, totalSalary?: number,  }>({});
 
-    setDashboardType(value as "admin" | "employee")
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        if (role === "ADMIN") {
+          const response = await axios.get(TOTAL_COUNT);
+          setMetrics(response.data); 
+        }
+      } catch (error) {
+        console.error("Failed to fetch metrics:", error);
+      }
+    };
+
+    fetchMetrics();
+  }, [role]);
+
+
+  if (role === "ADMIN") {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <MetricCard 
+            title="Employees" 
+            value={metrics.employeeCount?.toString() || "Loading..."} 
+            icon={Users} 
+            iconColor="bg-purple-900" 
+          />
+          <MetricCard 
+            title="Departments" 
+            value={metrics.totalDepartments?.toString() || "Loading..."} 
+            icon={Landmark} 
+            iconColor="bg-amber-500" 
+          />
+          <MetricCard 
+            title="Teams" 
+            value={metrics.totalTeams?.toString() || "Loading..."} 
+            icon={Handshake} 
+            iconColor="bg-red-500"
+          />
+          <MetricCard 
+            title="Salary" 
+            value={metrics.totalSalary?.toString() || "Loading..."}  
+            icon={IndianRupee} 
+            iconColor="bg-green-500" />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Employees</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EmployeeChart />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Salary By Unit</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SalaryChart />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <TodayEvents />
+          <TeamLeads />
+        </div>
+      </div>
+    )
+  }
+
+  if (role === "EMPLOYEE") {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Employee Dashboard</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Employee dashboard content will be displayed here.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
-      <Tabs defaultValue="admin" value={dashboardType} onValueChange={handleTabChange} className="space-y-4">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="admin">Admin Dashboard</TabsTrigger>
-          <TabsTrigger value="employee">Employees Dashboard</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="admin" className="space-y-6">
-          {/* Metric Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <MetricCard title="Employees" value="700" icon={Users} iconColor="bg-purple-900" />
-            <MetricCard title="Companies" value="30" icon={Building2} iconColor="bg-amber-500" />
-            <MetricCard title="Leaves" value="3" icon={FileText} iconColor="bg-red-500" />
-            <MetricCard title="Salary" value="$5.8M" icon={DollarSign} iconColor="bg-green-500" />
-          </div>
-
-          {/* Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Total Employees</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EmployeeChart />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Total Salary By Unit</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SalaryChart />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Additional Sections */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <TodayEvents />
-            <TeamLeads />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="employee">
-          <Card>
-            <CardHeader>
-              <CardTitle>Employee Dashboard</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Employee dashboard content will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+    <div className="text-center text-red-600 font-medium">
+      Unauthorized: Invalid role or not logged in.
     </div>
   )
 }
 
-// Define the MetricCardProps interface
 interface MetricCardProps {
   title: string;
   value: string;

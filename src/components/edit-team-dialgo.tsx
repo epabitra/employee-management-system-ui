@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -10,37 +9,35 @@ import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 
 const teamSchema = z.object({
-  name: z.string().min(1, "Team name is required"),
+  teamName: z.string().min(1, "Team name is required"),
+  description: z.string().min(1, "Team description is required"),
 })
 
 type TeamFormValues = z.infer<typeof teamSchema>
 
 interface EditTeamDialogProps {
-  team: { id: number; name: string }
+  teamName: { uuid: string; teamName: string; description: string }
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSave: (name: string) => void
+  onSave: (teamName: string, description: string) => void
 }
 
-export function EditTeamDialog({ team, open, onOpenChange, onSave }: EditTeamDialogProps) {
+export function EditTeamDialog({ teamName, open, onOpenChange, onSave }: EditTeamDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<TeamFormValues>({
     resolver: zodResolver(teamSchema),
     defaultValues: {
-      name: team.name,
+      teamName: teamName.teamName,
+      description: teamName.description,
     },
   })
 
   const onSubmit = async (data: TeamFormValues) => {
     setIsSubmitting(true)
     try {
-      // In a real app, this would be an API call
-      await updateTeam(team.id, data).catch(() => {
-        // Fallback for demo purposes
-        console.log("Using mock implementation for team update")
-      })
-      onSave(data.name)
+      await onSave(data.teamName, data.description) // Direct call to parent
+      onOpenChange(false)
     } catch (error) {
       console.error("Error updating team:", error)
     } finally {
@@ -59,12 +56,26 @@ export function EditTeamDialog({ team, open, onOpenChange, onSave }: EditTeamDia
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
+              name="teamName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter team name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter team description" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -94,14 +105,4 @@ export function EditTeamDialog({ team, open, onOpenChange, onSave }: EditTeamDia
       </DialogContent>
     </Dialog>
   )
-}
-
-async function updateTeam(teamId: number, data: TeamFormValues) {
-  // Simulate an API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`Team with ID ${teamId} updated with data:`, data)
-      resolve(null)
-    }, 500)
-  })
 }

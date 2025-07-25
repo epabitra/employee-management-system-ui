@@ -93,13 +93,13 @@ export function Sidebar() {
             )}
             <AvatarFallback>
               {isLoggedIn() && user?.firstName && user?.lastName
-                ? `${user.firstName[0]}${user.lastName[0]}`
+                ? `${user.firstName.charAt(0).toUpperCase()}${user.lastName.charAt(0).toUpperCase()}`
                 : "U"}
             </AvatarFallback>
           </Avatar>
           <h3 className="mt-2 text-lg font-medium">
             {isLoggedIn() && user?.firstName
-              ? `Welcome ${user.firstName} ${user.lastName}`
+              ? `Welcome ${user.firstName}`
               : "Welcome Guest"}
           </h3>
           <p className="text-sm text-gray-500">{formattedDate}</p>

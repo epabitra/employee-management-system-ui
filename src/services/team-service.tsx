@@ -1,75 +1,42 @@
-import axios from "axios"
+import axios from "axios";
+import { TEAM_LIST, CREATE_TEAM, EDIT_TEAM, DELETE_TEAM } from "../constants/constants";
 
-// Create an axios instance with default config
-const api = axios.create({
-  baseURL: "/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-})
-
-// Function to fetch all teams
-export async function fetchTeams() {
+export const getTeams = async () => {
   try {
-    const response = await api.get("/teams")
-    return response.data
+    const res = await axios.get(TEAM_LIST);
+    return Array.isArray(res.data) ? res.data : [];
   } catch (error) {
-    console.error("Error fetching teams:", error)
-    throw error
+    throw new Error("Failed to fetch teams");
   }
-}
+};
 
-// Function to create a new team
-export async function createTeam(teamData: { name: string }) {
+export const createTeam = async (team: { teamName: string; description: string }) => {
   try {
-    const response = await api.post("/teams", teamData)
-    return response.data
+    const res = await axios.post(CREATE_TEAM, team, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.data;
   } catch (error) {
-    console.error("Error creating team:", error)
-    throw error
+    throw new Error("Failed to create team");
   }
-}
+};
 
-// Function to update a team
-export async function updateTeam(id: number, teamData: { name: string }) {
+export const editTeam = async (uuid: string, teamName: string, description: string) => {
   try {
-    const response = await api.put(`/teams/${id}`, teamData)
-    return response.data
+    const res = await axios.put(`${EDIT_TEAM}/${uuid}`, { teamName, description }, {
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.data;
   } catch (error) {
-    console.error("Error updating team:", error)
-    throw error
+    throw new Error("Failed to edit team");
   }
-}
+};
 
-// Function to delete a team
-export async function deleteTeam(id: number) {
-  try {
-    await api.delete(`/teams/${id}`)
-    return true
-  } catch (error) {
-    console.error("Error deleting team:", error)
-    throw error
-  }
-}
 
-// Function to add a member to a team
-export async function addTeamMember(teamId: number, userId: string) {
+export const deleteTeam = async (uuid: string) => {
   try {
-    const response = await api.post(`/teams/${teamId}/members`, { userId })
-    return response.data
+    await axios.delete(`${DELETE_TEAM}/${uuid}`);
   } catch (error) {
-    console.error("Error adding team member:", error)
-    throw error
+    throw new Error("Failed to delete team");
   }
-}
-
-// Function to remove a member from a team
-export async function removeTeamMember(teamId: number, userId: string) {
-  try {
-    await api.delete(`/teams/${teamId}/members/${userId}`)
-    return true
-  } catch (error) {
-    console.error("Error removing team member:", error)
-    throw error
-  }
-}
+};

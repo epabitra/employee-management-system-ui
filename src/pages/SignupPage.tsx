@@ -1,9 +1,7 @@
-// import type React from "react"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
-// import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
@@ -15,31 +13,10 @@ import { Button } from "../components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { Calendar } from "../components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
-import { GET_ALL_DEPARTMENTS, GET_ALL_ROLES } from "../constants/ApiConstant"
+import { GET_ALL_DEPARTMENTS, GET_ALL_ROLES } from "../constants/constants"
 import { SignupFormValues, signupSchema } from "@/models/SignupForm"
 
-// const signupSchema = z
-//   .object({
-//     firstName: z.string().min(3, { message: "First name must be at least 3 characters" }),
-//     lastName: z.string().min(3, { message: "Last name must be at least 3 characters" }),
-//     email: z.string().email({ message: "Please enter a valid email address" }),
-//     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-//     confirmPassword: z.string(),
-//     // imageUrl: z.any().optional(),
-//     langKey: z.string().default("en").optional(),
-//     mobileNumber: z.string().min(5, { message: "Please enter a valid phone number" }),
-//     dateOfBirth: z.date({
-//       required_error: "Please select a date of birth",
-//     }),
-//     department: z.string(),
-//     role: z.string(),
-//   })
-//   .refine((data) => data.password === data.confirmPassword, {
-//     message: "Passwords don't match",
-//     path: ["confirmPassword"],
-//   })
 
-// type SignupFormValues = z.infer<typeof signupSchema>
 
 type Role = {
   id: number

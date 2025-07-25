@@ -17,8 +17,11 @@ export const handleError = (error: any) => {
     } else if (err?.status == 401) {
       toast.warning("Please login");
       window.history.pushState({}, "LoginPage", "/login");
+    } else if (err?.status == 403) {
+      toast.warning(err?.data?.message || "Invalid email or password");
     } else if (err) {
       toast.warning(err?.data);
     }
+
   }
 };
